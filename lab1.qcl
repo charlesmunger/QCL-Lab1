@@ -1,8 +1,34 @@
 /* An implementation of quantum teleportation, and superdense coding in QCL.
  * This is for a class at UCSB, and was written by Charles Munger. */
+
+/* Creates an EPR state between two 1-qubit registers. */
 operator EPR(qureg q1, qureg q2) {
 	Mix(q1);
 	CNot(q2,q1);
+}
+
+/* Encodes two bits of information into a single-qubit qureg. */
+operator Send(int bit0, int bit1, qureg q1) {
+	if bit0==0 and bit1==1 {Matrix2x2((0,0), (1,0),(1,0), (0,0), q1);};	
+	if bit0==1 and bit1==0 {Matrix2x2((1,0), (0,0),(0,0), (-1,0), q1);};	
+	if bit0==1 and bit1==1 {Matrix2x2((0,0), (0,-1),(0,1), (0,0), q1);};	
+}
+
+/* Decodes two bits of information by comparing two EPR-paired qubits. */
+procedure Receive(qureg q1, qureg q2) {
+	int bit0; int bit1;
+	CNot(q2,q1);
+	Mix(q1);
+	measure q1,bit0;
+	measure q2,bit1;
+	print bit0,bit1;
+}
+
+procedure testIndividualCode(int bit0,int bit1,qureg a, qureg b) {
+	reset;
+	EPR(a,b);
+	Send(bit0,bit1,a);
+	Receive(a,b);
 }
 
 /* Transfers the state of the source qureg to the destination qureg. 
@@ -18,7 +44,7 @@ procedure teleport(qureg source, qureg destination, qureg scratch) {
 }
 
 //Tests the teleport procedure.
-procedure teleportTest() {
+procedure testTeleport() {
 	qureg source[1];
 	qureg destination[1];
 	qureg scratch[1];
@@ -29,8 +55,17 @@ procedure teleportTest() {
 	teleport(source,destination,scratch);
 	print "dumping b";
 	dump destination;
+	reset;
 }
 
-procedure Send(int bit0, int bit1, qureg q1) {
-	
+/* Tests the Send() and Receive() procedures, should output all 
+ * two bit numbers in order. */
+procedure testCoding() {
+	qureg a[1]; qureg b[1];
+	testIndividualCode(0,0,a, b);
+	testIndividualCode(0,1,a, b);
+	testIndividualCode(1,0,a, b);
+	testIndividualCode(1,1,a, b);
+	reset;
 }
+
