@@ -1,10 +1,13 @@
 
+operator EPR(qureg q1, qureg q2) {
+	Mix(q1);
+	CNot(q2,q1);
+}
+
 procedure teleport(qureg source, qureg destination, qureg scratch) {
 	int M0;int M1;
-	Mix(scratch);
-	CNot(destination,scratch);
-	!CNot(scratch,source);
-	!H(source);
+	EPR(scratch,destination);
+	!EPR(source, scratch);
 	measure source, M0;
 	measure scratch, M1;
 	if M1 == 1 {Matrix2x2((0,0), (1,0),(1,0), (0,0), destination);};
@@ -22,11 +25,6 @@ procedure teleportTest() {
 	teleport(source,destination,scratch);
 	print "dumping b";
 	dump destination;
-}
-
-operator EPR(qureg q1, qureg q2) {
-	Mix(q1);
-	CNot(q1,q1);
 }
 
 procedure Send(int bit0, int bit1, qureg q1) {
