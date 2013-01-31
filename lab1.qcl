@@ -1,9 +1,12 @@
-
+/* An implementation of quantum teleportation, and superdense coding in QCL.
+ * This is for a class at UCSB, and was written by Charles Munger. */
 operator EPR(qureg q1, qureg q2) {
 	Mix(q1);
 	CNot(q2,q1);
 }
 
+/* Transfers the state of the source qureg to the destination qureg. 
+ * Only works for 1-qubit quregs. */
 procedure teleport(qureg source, qureg destination, qureg scratch) {
 	int M0;int M1;
 	EPR(scratch,destination);
@@ -14,6 +17,7 @@ procedure teleport(qureg source, qureg destination, qureg scratch) {
 	if M0 == 1 {Matrix2x2((1,0), (0,0),(0,0), (-1,0), destination);};
 }
 
+//Tests the teleport procedure.
 procedure teleportTest() {
 	qureg source[1];
 	qureg destination[1];
